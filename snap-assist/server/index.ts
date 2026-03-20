@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
+import path from 'path';
 
 dotenv.config();
 
@@ -41,12 +42,12 @@ app.post('/api/analyze', async (req, res) => {
     `;
 
     const contents: any[] = [];
-    
+
     // Add text/transcript if present
     if (text) {
       contents.push(text);
     }
-    
+
     // Add image if present (strip data URI prefix if needed)
     if (imageBase64) {
       const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
@@ -83,13 +84,19 @@ app.post('/api/analyze', async (req, res) => {
     }
     // Verify it is parseable JSON
     const parsedData = JSON.parse(outputText);
-    
+
     return res.json(parsedData);
 
   } catch (error: any) {
     console.error("AI Analysis Error:", error);
     return res.status(500).json({ error: error.message || "Failed to analyze input" });
   }
+});
+
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get(/.*$/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 app.listen(port, () => {
