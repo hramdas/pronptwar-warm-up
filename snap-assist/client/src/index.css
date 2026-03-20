@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-gray-100 antialiased min-h-screen selection:bg-primary/30;
+    /* Soft ambient background to avoid plain black */
+    background-image: radial-gradient(circle at top right, rgba(139, 92, 246, 0.1), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1), transparent 40%);
+  }
+  #root {
+    @apply w-full min-h-screen flex flex-col items-center justify-center relative;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-surface backdrop-blur-3xl border border-white/5 shadow-2xl;
+  }
+  .glass-card {
+    @apply bg-surface backdrop-blur-3xl border border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.5)] rounded-3xl p-6 transition-all duration-500 ease-out;
+  }
+  .glass-card:hover {
+    @apply bg-surfaceHover border-white/10 shadow-[0_8px_40px_rgba(59,130,246,0.1)];
+    transform: translateY(-2px);
+  }
+  
+  /* Upgraded core interaction buttons */
+  .glass-button {
+    @apply flex flex-col items-center justify-center gap-4 bg-surface backdrop-blur-2xl border border-white/5 shadow-xl rounded-[2rem] p-6 transition-all duration-500 ease-out relative overflow-hidden group;
+  }
+  .glass-button::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity duration-500 z-0;
+  }
+  .glass-button:hover::before {
+    @apply opacity-100;
+  }
+  .glass-button:hover {
+    @apply border-white/20 -translate-y-2 shadow-[0_20px_40px_rgba(0,0,0,0.6)];
+  }
+  .glass-button:active {
+    @apply translate-y-0 scale-[0.97] duration-100;
+  }
+  
+  /* Icon container inside buttons */
+  .icon-ring {
+    @apply w-16 h-16 rounded-full flex items-center justify-center text-2xl transition-all duration-500 z-10 relative bg-background border border-white/10 shadow-inner group-hover:scale-110;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-pink-500;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
