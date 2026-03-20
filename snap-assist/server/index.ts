@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -93,11 +94,25 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// Prefer the built React app from client/dist, fallback to server's public folder
+const reactDist = path.join(__dirname, '../client/dist');
+const localPublic = path.join(__dirname, 'public');
 
-app.get(/.*$/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
+if (fs.existsSync(reactDist)) {
+  app.use(express.static(reactDist));
+  app.get(/.*$/, (req, res) => {
+    res.sendFile(path.join(reactDist, 'index.html'));
+  });
+} else {
+  app.use(express.static(localPublic));
+  app.get(/.*$/, (req, res) => {
+    if (fs.existsSync(path.join(localPublic, 'index.html'))) {
+        res.sendFile(path.join(localPublic, 'index.html'));
+    } else {
+        res.json({ status: 'ok', message: 'SnapAssist API is running' });
+    }
+  });
+}
 
 app.listen(port, () => {
   console.log(`SnapAssist server running on port ${port}`);
