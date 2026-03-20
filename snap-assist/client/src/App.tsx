@@ -37,8 +37,7 @@ export default function App() {
         payload.imageBase64 = data;
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const res = await fetch(`${apiUrl}/api/analyze`, {
+      const res = await fetch(`/api/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
