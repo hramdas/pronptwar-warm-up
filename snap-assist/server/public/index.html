@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapAssist</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #151a23;
+      --card-hover: #1e2430;
+      --border-color: #2a313e;
+      --text-main: #ffffff;
+      --text-muted: #8b949e;
+      --primary-gradient: linear-gradient(90deg, #7b61ff, #ff4d85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 6vh 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .title {
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1.5px;
+    }
+
+    .title-snap {
+      color: #7b61ff;
+      background: linear-gradient(90deg, #7b61ff, #a58aff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .title-assist {
+      color: #ff4d85;
+      background: linear-gradient(90deg, #ff4d85, #ff8dad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      font-weight: 400;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      max-width: 650px;
+      width: 100%;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      min-height: 200px;
+    }
+
+    .card:hover {
+      background-color: var(--card-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+      border-color: #3b4252;
+    }
+
+    .icon {
+      font-size: 2.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Upload modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      max-width: 550px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .close-btn:hover {
+      color: white;
+    }
+
+    textarea.input-area {
+      width: 100%;
+      height: 140px;
+      background: #0d1117;
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 1.2rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      resize: none;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    textarea.input-area:focus {
+      outline: none;
+      border-color: #7b61ff;
+    }
+
+    button.submit-btn {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1.1rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button.submit-btn:hover {
+      opacity: 0.9;
+    }
+
+    button.submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    button.submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: #0d1117;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      display: none;
+    }
+
+    .action-badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 650px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1 class="title"><span class="title-snap">Snap</span><span class="title-assist">Assist</span></h1>
+    <p class="subtitle">Point at any real-world problem. Get instant action.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card" onclick="openModal('Camera')">
+      <div class="icon">📷</div>
+      <h2 class="card-title">Camera</h2>
+      <p class="card-desc">Point at anything</p>
+    </div>
+
+    <div class="card" onclick="openModal('Upload')">
+      <div class="icon">📁</div>
+      <h2 class="card-title">Upload</h2>
+      <p class="card-desc">Photo or image file</p>
+    </div>
+
+    <div class="card" onclick="openModal('Voice')">
+      <div class="icon">🎙️</div>
+      <h2 class="card-title">Voice</h2>
+      <p class="card-desc">Describe the situation</p>
+    </div>
+
+    <div class="card" onclick="openModal('Type')">
+      <div class="icon">⌨️</div>
+      <h2 class="card-title">Type</h2>
+      <p class="card-desc">Write it out</p>
+    </div>
+  </div>
+
+  <div class="modal" id="actionModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <h2 class="card-title" id="modalTitle">Analyze Situation</h2>
+      <textarea id="textInput" class="input-area" placeholder="Describe your situation here..."></textarea>
+      <button class="submit-btn" onclick="analyzeRequest()" id="submitBtn">Get Instant Action</button>
+      <div class="result" id="resultArea"></div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(type) {
+      document.getElementById('modalTitle').textContent = type + ' Input';
+      document.getElementById('actionModal').classList.add('active');
+      document.getElementById('textInput').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('actionModal').classList.remove('active');
+      document.getElementById('resultArea').style.display = 'none';
+      document.getElementById('textInput').value = '';
+    }
+
+    async function analyzeRequest() {
+      const text = document.getElementById('textInput').value;
+      if (!text) return;
+
+      const btn = document.getElementById('submitBtn');
+      const resultArea = document.getElementById('resultArea');
+
+      btn.textContent = 'Processing...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          let badgeColor = '#3498db'; // blue default
+          if (data.priorityBadgeColor === 'red') badgeColor = '#e74c3c';
+          if (data.priorityBadgeColor === 'yellow') badgeColor = '#f1c40f';
+
+          resultArea.innerHTML = `
+                      <span class="action-badge" style="background-color: ${badgeColor}20; border: 1px solid ${badgeColor}; color: ${badgeColor};">${data.priorityBadge || 'INFO'}</span>
+                      <h3 style="color: white; margin-bottom: 0.8rem; font-size: 1.3rem;">${data.title}</h3>
+                      <p style="margin-bottom: 1.2rem; color: var(--text-muted); line-height: 1.5;">${data.summary}</p>
+                      ${data.actionSteps && data.actionSteps.length > 0 ? `
+                          <div style="margin-bottom: 1.5rem; background: var(--card-bg); padding: 1rem; border-radius: 8px;">
+                              <h4 style="color: white; margin-bottom: 0.8rem; font-size: 0.9rem; text-transform: uppercase;">Recommended Actions</h4>
+                              <ul style="margin-left: 1.2rem; color: var(--text-main); line-height: 1.6;">
+                                  ${data.actionSteps.map(step => `
+                                      <li style="margin-bottom: 0.5rem">
+                                          <strong style="color: white;">${step.title}</strong>: 
+                                          <span style="color: var(--text-muted);">${step.detail}</span>
+                                      </li>`).join('')}
+                              </ul>
+                          </div>
+                      ` : ''}
+                      ${data.quickAction ? `
+                          <a href="${data.quickAction.intent}" style="display: block; text-align: center; background: ${badgeColor}; color: white; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">${data.quickAction.label}</a>
+                      ` : ''}
+                  `;
+        } else {
+          resultArea.innerHTML = `<p style="color: #ff4d4d; margin: 0;">Error: ${data.error || 'Unknown error occurred while parsing output.'}</p>`;
+        }
+
+      } catch (err) {
+        resultArea.innerHTML = `<p style="color: #ff4d4d; margin: 0;">Connection Error: ${err.message}</p>`;
+      } finally {
+        resultArea.style.display = 'block';
+        btn.textContent = 'Get Instant Action';
+        btn.disabled = false;
+      }
+    }
+
+    // Close modal on escape key or clicking outside
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeModal();
+    });
+
+    window.addEventListener('click', function (event) {
+      const modal = document.getElementById('actionModal');
+      if (event.target === modal) closeModal();
+    });
+  </script>
+</body>
+
+</html>
