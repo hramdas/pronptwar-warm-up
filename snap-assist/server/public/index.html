@@ -1,375 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SnapAssist</title>
-  <style>
-    :root {
-      --bg-color: #0b0f19;
-      --card-bg: #151a23;
-      --card-hover: #1e2430;
-      --border-color: #2a313e;
-      --text-main: #ffffff;
-      --text-muted: #8b949e;
-      --primary-gradient: linear-gradient(90deg, #7b61ff, #ff4d85);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 6vh 2rem;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 3.5rem;
-    }
-
-    .title {
-      font-size: 4rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      letter-spacing: -1.5px;
-    }
-
-    .title-snap {
-      color: #7b61ff;
-      background: linear-gradient(90deg, #7b61ff, #a58aff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .title-assist {
-      color: #ff4d85;
-      background: linear-gradient(90deg, #ff4d85, #ff8dad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 1.25rem;
-      font-weight: 400;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      max-width: 650px;
-      width: 100%;
-    }
-
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 2.5rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      min-height: 200px;
-    }
-
-    .card:hover {
-      background-color: var(--card-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
-      border-color: #3b4252;
-    }
-
-    .icon {
-      font-size: 2.8rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .card-title {
-      font-size: 1.35rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-    }
-
-    .card-desc {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-    }
-
-    /* Upload modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
-    }
-
-    .modal.active {
-      display: flex;
-      animation: fadeIn 0.2s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      padding: 2.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-color);
-      max-width: 550px;
-      width: 90%;
-      position: relative;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.8rem;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .close-btn:hover {
-      color: white;
-    }
-
-    textarea.input-area {
-      width: 100%;
-      height: 140px;
-      background: #0d1117;
-      border: 1px solid var(--border-color);
-      color: white;
-      padding: 1.2rem;
-      border-radius: 12px;
-      margin-top: 1.5rem;
-      margin-bottom: 1.5rem;
-      resize: none;
-      font-family: inherit;
-      font-size: 1rem;
-      transition: border-color 0.2s;
-    }
-
-    textarea.input-area:focus {
-      outline: none;
-      border-color: #7b61ff;
-    }
-
-    button.submit-btn {
-      background: var(--primary-gradient);
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      font-size: 1.1rem;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
-    button.submit-btn:hover {
-      opacity: 0.9;
-    }
-
-    button.submit-btn:active {
-      transform: scale(0.98);
-    }
-
-    button.submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .result {
-      margin-top: 1.5rem;
-      padding: 1.5rem;
-      background: #0d1117;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      display: none;
-    }
-
-    .action-badge {
-      display: inline-block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      margin-bottom: 0.8rem;
-      text-transform: uppercase;
-    }
-
-    @media (max-width: 650px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .title {
-        font-size: 3rem;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="header">
-    <h1 class="title"><span class="title-snap">Snap</span><span class="title-assist">Assist</span></h1>
-    <p class="subtitle">Point at any real-world problem. Get instant action.</p>
-  </div>
-
-  <div class="grid">
-    <div class="card" onclick="openModal('Camera')">
-      <div class="icon">📷</div>
-      <h2 class="card-title">Camera</h2>
-      <p class="card-desc">Point at anything</p>
-    </div>
-
-    <div class="card" onclick="openModal('Upload')">
-      <div class="icon">📁</div>
-      <h2 class="card-title">Upload</h2>
-      <p class="card-desc">Photo or image file</p>
-    </div>
-
-    <div class="card" onclick="openModal('Voice')">
-      <div class="icon">🎙️</div>
-      <h2 class="card-title">Voice</h2>
-      <p class="card-desc">Describe the situation</p>
-    </div>
-
-    <div class="card" onclick="openModal('Type')">
-      <div class="icon">⌨️</div>
-      <h2 class="card-title">Type</h2>
-      <p class="card-desc">Write it out</p>
-    </div>
-  </div>
-
-  <div class="modal" id="actionModal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeModal()">×</button>
-      <h2 class="card-title" id="modalTitle">Analyze Situation</h2>
-      <textarea id="textInput" class="input-area" placeholder="Describe your situation here..."></textarea>
-      <button class="submit-btn" onclick="analyzeRequest()" id="submitBtn">Get Instant Action</button>
-      <div class="result" id="resultArea"></div>
-    </div>
-  </div>
-
-  <script>
-    function openModal(type) {
-      document.getElementById('modalTitle').textContent = type + ' Input';
-      document.getElementById('actionModal').classList.add('active');
-      document.getElementById('textInput').focus();
-    }
-
-    function closeModal() {
-      document.getElementById('actionModal').classList.remove('active');
-      document.getElementById('resultArea').style.display = 'none';
-      document.getElementById('textInput').value = '';
-    }
-
-    async function analyzeRequest() {
-      const text = document.getElementById('textInput').value;
-      if (!text) return;
-
-      const btn = document.getElementById('submitBtn');
-      const resultArea = document.getElementById('resultArea');
-
-      btn.textContent = 'Processing...';
-      btn.disabled = true;
-
-      try {
-        const res = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: text })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          let badgeColor = '#3498db'; // blue default
-          if (data.priorityBadgeColor === 'red') badgeColor = '#e74c3c';
-          if (data.priorityBadgeColor === 'yellow') badgeColor = '#f1c40f';
-
-          resultArea.innerHTML = `
-                      <span class="action-badge" style="background-color: ${badgeColor}20; border: 1px solid ${badgeColor}; color: ${badgeColor};">${data.priorityBadge || 'INFO'}</span>
-                      <h3 style="color: white; margin-bottom: 0.8rem; font-size: 1.3rem;">${data.title}</h3>
-                      <p style="margin-bottom: 1.2rem; color: var(--text-muted); line-height: 1.5;">${data.summary}</p>
-                      ${data.actionSteps && data.actionSteps.length > 0 ? `
-                          <div style="margin-bottom: 1.5rem; background: var(--card-bg); padding: 1rem; border-radius: 8px;">
-                              <h4 style="color: white; margin-bottom: 0.8rem; font-size: 0.9rem; text-transform: uppercase;">Recommended Actions</h4>
-                              <ul style="margin-left: 1.2rem; color: var(--text-main); line-height: 1.6;">
-                                  ${data.actionSteps.map(step => `
-                                      <li style="margin-bottom: 0.5rem">
-                                          <strong style="color: white;">${step.title}</strong>: 
-                                          <span style="color: var(--text-muted);">${step.detail}</span>
-                                      </li>`).join('')}
-                              </ul>
-                          </div>
-                      ` : ''}
-                      ${data.quickAction ? `
-                          <a href="${data.quickAction.intent}" style="display: block; text-align: center; background: ${badgeColor}; color: white; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">${data.quickAction.label}</a>
-                      ` : ''}
-                  `;
-        } else {
-          resultArea.innerHTML = `<p style="color: #ff4d4d; margin: 0;">Error: ${data.error || 'Unknown error occurred while parsing output.'}</p>`;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapAssist | Emergency Triage AI</title>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --accent: #8b5cf6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --surface: #151a23;
+            --bg: #0b0f19;
+            --text: #ffffff;
+            --text-muted: #9ca3af;
         }
 
-      } catch (err) {
-        resultArea.innerHTML = `<p style="color: #ff4d4d; margin: 0;">Connection Error: ${err.message}</p>`;
-      } finally {
-        resultArea.style.display = 'block';
-        btn.textContent = 'Get Instant Action';
-        btn.disabled = false;
-      }
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        }
 
-    // Close modal on escape key or clicking outside
-    window.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeModal();
-    });
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-    window.addEventListener('click', function (event) {
-      const modal = document.getElementById('actionModal');
-      if (event.target === modal) closeModal();
-    });
-  </script>
+        /* Animated Background Blobs */
+        .blobs {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: move 15s infinite alternate;
+        }
+
+        .blob-1 { width: 400px; height: 400px; background: var(--primary); top: -100px; left: -100px; }
+        .blob-2 { width: 350px; height: 350px; background: var(--accent); top: 20%; right: -50px; animation-delay: -5s; }
+        .blob-3 { width: 300px; height: 300px; background: var(--secondary); bottom: -100px; left: 20%; animation-delay: -10s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 100px) scale(1.2); }
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 50;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 10;
+        }
+
+        main#home-screen {
+            display: flex;
+        }
+
+        h2.hero-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        p.hero-subtitle {
+            color: var(--text-muted);
+            font-size: 1.125rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .card-icon {
+            border-color: currentColor;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .card-label {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #d1d5db;
+        }
+
+        /* Modal Styles */
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1rem;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            resize: none;
+        }
+
+        textarea:focus { border-color: var(--primary); outline: none; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1.125rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover { opacity: 0.9; transform: scale(0.98); }
+
+        /* Loader */
+        #loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .spinner {
+            width: 4rem;
+            height: 4rem;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Results */
+        #result-screen { display: none; width: 100%; }
+        .result-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border-top: 4px solid var(--primary);
+            width: 100%;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1.25rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .step-num {
+            width: 1.5rem;
+            height: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon"><i data-lucide="activity"></i></div>
+            <span class="logo-text">SnapAssist</span>
+        </div>
+    </header>
+
+    <main id="home-screen">
+        <h2 class="hero-title">How can I help?</h2>
+        <p class="hero-subtitle">Point, snap, or speak to get instant guidance.</p>
+        
+        <div class="grid">
+            <div class="card" style="color: var(--primary)" onclick="showModal('camera')">
+                <div class="card-icon"><i data-lucide="camera"></i></div>
+                <span class="card-label">Take Photo</span>
+            </div>
+            <div class="card" style="color: var(--secondary)" onclick="showModal('voice')">
+                <div class="card-icon"><i data-lucide="mic"></i></div>
+                <span class="card-label">Voice Note</span>
+            </div>
+            <div class="card" style="color: var(--accent)" onclick="showModal('upload')">
+                <div class="card-icon"><i data-lucide="upload-cloud"></i></div>
+                <span class="card-label">Upload File</span>
+            </div>
+            <div class="card" style="color: #9ca3af" onclick="showModal('text')">
+                <div class="card-icon"><i data-lucide="type"></i></div>
+                <span class="card-label">Type Text</span>
+            </div>
+        </div>
+    </main>
+
+    <div id="loader" style="flex: 1; justify-content: center;">
+        <div class="spinner"></div>
+        <div style="text-align: center">
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem">Analyzing Scene...</h3>
+            <p style="color: var(--text-muted)">Gemini is processing multimodal context.</p>
+        </div>
+    </div>
+
+    <main id="result-screen">
+        <div class="result-card" id="result-content">
+            <!-- Content dynamic -->
+        </div>
+        <button class="btn-primary" style="margin-top: 1.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1)" onclick="reset()">
+            <i data-lucide="check-circle-2"></i> Done
+        </button>
+    </main>
+
+    <div id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="hideModal()"><i data-lucide="x"></i></button>
+            <div class="modal-header">
+                <div id="modal-icon-box" class="logo-icon"></div>
+                <h3 id="modal-title">Type Input</h3>
+            </div>
+            <textarea id="input-text" placeholder="Describe the situation..."></textarea>
+            <button class="btn-primary" onclick="submit()">
+                Get Instant Action <i data-lucide="chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        function showModal(type) {
+            const icons = { camera: 'camera', voice: 'mic', upload: 'upload-cloud', text: 'type' };
+            document.getElementById('modal-title').innerText = type.charAt(0).toUpperCase() + type.slice(1) + ' Input';
+            document.getElementById('modal-icon-box').innerHTML = `<i data-lucide="${icons[type]}"></i>`;
+            lucide.createIcons();
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function hideModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function reset() {
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'flex';
+        }
+
+        async function submit() {
+            const text = document.getElementById('input-text').value;
+            if (!text) return;
+
+            hideModal();
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('loader').style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, type: 'text' })
+                });
+                const data = await res.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                renderResult(data);
+            } catch (err) {
+                alert(err.message);
+                reset();
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        function renderResult(data) {
+            const colors = { red: '#ef4444', yellow: '#eab308', blue: '#3b82f6' };
+            const color = colors[data.priorityBadgeColor] || colors.blue;
+            
+            const content = document.getElementById('result-content');
+            content.parentElement.style.borderTopColor = color;
+            
+            content.innerHTML = `
+                <div class="badge" style="background: ${color}15; color: ${color}; border: 1px solid ${color}30">
+                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%"></div>
+                    ${data.priorityBadge}
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem">${data.title}</h3>
+                <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem">${data.summary}</p>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem">
+                    ${data.actionSteps.map((s, i) => `
+                        <div class="step">
+                            <div class="step-num">${i+1}</div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem">${s.title}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted)">${s.detail}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${data.quickAction ? `
+                    <a href="${data.quickAction.intent}" class="btn-primary" style="margin-top: 1.5rem; background: ${color}; box-shadow: 0 10px 20px ${color}40; text-decoration: none;">
+                        ${data.quickAction.label} <i data-lucide="chevron-right"></i>
+                    </a>
+                ` : ''}
+            `;
+            lucide.createIcons();
+            document.getElementById('result-screen').style.display = 'block';
+        }
+    </script>
 </body>
-
 </html>
