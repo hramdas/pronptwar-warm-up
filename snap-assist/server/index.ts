@@ -94,25 +94,17 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
-// Prefer the built React app from client/dist, fallback to server's public folder
-const reactDist = path.join(__dirname, '../client/dist');
+// Always serve from the local public folder for consistency across local and URL
 const localPublic = path.join(__dirname, 'public');
+app.use(express.static(localPublic));
 
-if (fs.existsSync(reactDist)) {
-  app.use(express.static(reactDist));
-  app.get(/.*$/, (req, res) => {
-    res.sendFile(path.join(reactDist, 'index.html'));
-  });
-} else {
-  app.use(express.static(localPublic));
-  app.get(/.*$/, (req, res) => {
-    if (fs.existsSync(path.join(localPublic, 'index.html'))) {
-        res.sendFile(path.join(localPublic, 'index.html'));
-    } else {
-        res.json({ status: 'ok', message: 'SnapAssist API is running' });
-    }
-  });
-}
+app.get(/.*$/, (req, res) => {
+  if (fs.existsSync(path.join(localPublic, 'index.html'))) {
+    res.sendFile(path.join(localPublic, 'index.html'));
+  } else {
+    res.json({ status: 'ok', message: 'SnapAssist API is running' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`SnapAssist server running on port ${port}`);
